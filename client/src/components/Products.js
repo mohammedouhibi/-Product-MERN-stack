@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { FormGroup, FormLabel, FormControl, Alert } from 'react-bootstrap';
 import { Button, Modal } from 'react-bootstrap';
+import ReactPaginate from 'react-paginate';
 
 const Products = () => {
   const [products, setProducts] = useState([]);
@@ -16,6 +17,27 @@ const Products = () => {
   const [showModal, setShowModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [noResults, setNoResults] = useState(false);
+
+
+  //pagination variables
+  const itemsPerPage = 5;
+  const [itemOffset, setItemOffset] = useState(0);
+  const endOffset = itemOffset + itemsPerPage;
+  const currentProducts = products.slice(itemOffset, endOffset);
+  const pageCount = Math.ceil(products.length / itemsPerPage);
+
+
+
+  const handlePageClick = (event) => {
+    const newOffset = (event.selected * itemsPerPage) % products.length;
+    console.log(
+      `User requested page number ${event.selected}, which is offset ${newOffset}`
+    );
+    setItemOffset(newOffset);
+  };
+
+
+
 
   useEffect(() => {
     fetchProducts();
@@ -145,7 +167,7 @@ const Products = () => {
               </tr>
             </thead>
             <tbody>
-              {products.map((product) => (
+              {currentProducts.map((product) => (
                 <tr key={product._id}>
                   <td style={{ padding: '10px', textAlign: 'center' }}>{product.nom}</td>
                   <td style={{ padding: '10px', textAlign: 'center' }}>{product.prix}</td>
@@ -162,6 +184,18 @@ const Products = () => {
               ))}
             </tbody>
           </table>
+
+          
+          <ReactPaginate
+          //to do : use class names to configure style
+        breakLabel="..."
+        nextLabel="next >"
+        onPageChange={handlePageClick}
+        pageRangeDisplayed={5}
+        pageCount={pageCount}
+        previousLabel="< previous"
+        renderOnZeroPageCount={null}
+      />
         </div>
       )}
       <Modal show={showConfirmation} onHide={() => setShowConfirmation(false)}>
